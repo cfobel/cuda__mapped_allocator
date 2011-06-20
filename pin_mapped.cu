@@ -2,8 +2,10 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
+#include <vector>
 #include <boost/format.hpp>
 #include <cuda.h>
+#include "mapped_allocator.hpp"
 using namespace std;
 
 #define _ boost::format
@@ -79,8 +81,8 @@ int main(int argc, char** argv) {
     // allocate mapped arrays
     cout << "allocate mapped arrays...";
     cout.flush();
-    cudaHostAlloc((void **)&a_m, size, cudaHostAllocMapped);
-    checkCUDAError("cudaHostAllocMapped");
+    vector<float, mapped_allocator<float> > a_m_v(N); // host memory vector
+    a_m = &a_m_v[0];
     cout << "DONE" << endl;
     
     // Get the device pointers to the mapped memory
