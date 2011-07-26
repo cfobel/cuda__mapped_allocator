@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <limits>
 #include <cuda.h>
+#include <cuda_runtime.h>
 
 template <typename T> class mapped_allocator;
 
