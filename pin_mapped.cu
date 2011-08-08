@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     // allocate mapped arrays
     cout << "allocate mapped arrays...";
     cout.flush();
-    vector<float, mapped_allocator<float> > a_m_v(N); // host memory vector
+    vector<float, cuda_mapped::mapped_allocator<float> > a_m_v(N); // host memory vector
     a_m = &a_m_v[0];
     cout << "DONE" << endl;
     

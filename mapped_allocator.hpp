@@ -6,6 +6,11 @@
 #include <limits>
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <iostream>
+
+namespace cuda_mapped{
+
+using namespace std;
 
 template <typename T> class mapped_allocator;
 
@@ -20,19 +25,17 @@ public:
         struct rebind { typedef mapped_allocator<U> other; };
 };    
 
-namespace cuda_mapped{
-    inline void destruct(char *){}
-    inline void destruct(wchar_t*){}
-    template <typename T> 
-        inline void destruct(T *t){t->~T();}
-    inline void checkCUDAError(const char *msg) {
-        cudaError_t err = cudaGetLastError();
-        if(cudaSuccess != err) {
-            fprintf(stderr, "Cuda error: %s: %s.\n", msg, cudaGetErrorString(err));
-            exit(EXIT_FAILURE);
-        }                        
-    }
-} // namespace
+inline void destruct(char *){}
+inline void destruct(wchar_t*){}
+template <typename T> 
+    inline void destruct(T *t){t->~T();}
+inline void checkCUDAError(const char *msg) {
+    cudaError_t err = cudaGetLastError();
+    if(cudaSuccess != err) {
+        fprintf(stderr, "Cuda error: %s: %s.\n", msg, cudaGetErrorString(err));
+        exit(EXIT_FAILURE);
+    }                        
+}
     
 template <typename T>
 class mapped_allocator
@@ -53,7 +56,7 @@ public:
     const_pointer address(const_reference x) const { return &x; }
     pointer allocate(size_type size, mapped_allocator<void>::const_pointer hint = 0) {
         int bytes = size * sizeof(T);
-        std::cout << "Allocating " << bytes << " bytes." << std::endl;
+        cout << "Allocating " << bytes << " bytes." << endl;
         pointer a_m; // pointer to host memory
         cudaHostAlloc((void **)&a_m, bytes, cudaHostAllocMapped);
         cuda_mapped::checkCUDAError("cudaHostAllocMapped");
@@ -68,7 +71,7 @@ public:
         cudaFreeHost(p);
     }
     size_type max_size() const throw() {
-        return std::numeric_limits<size_t>::max()/sizeof(T);
+        return numeric_limits<size_t>::max()/sizeof(T);
     }
     void construct(pointer p, const T& val)
     {
@@ -107,6 +110,8 @@ __stl_alloc_create(const mapped_allocator<_Tp1>&, const _Tp2*)
 
 } // namespace std
 // end STLPort
+
+} // namespace
 
 #endif
 
